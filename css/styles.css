@@ -1,0 +1,210 @@
+/* ==========================================================================
+   VELISIMA - Candle Inventory & Cost Control
+   Design System & Styling Rules
+   ========================================================================== */
+
+:root {
+    --primary-color: #8D5B4C;        /* Warm clay / terracota */
+    --primary-hover: #724639;
+    --secondary-color: #D4A373;      /* Honey / warm amber */
+    --accent-color: #E9D8A6;         /* Soft wax cream */
+    --background-color: #FAEDCD;     /* Cream page background */
+    --card-bg: #FFFFFF;
+    --dark-color: #333D29;           /* Sage forest dark green for text/headers */
+    --text-color: #4A4A4A;
+    --danger-color: #D9534F;         /* Warm alert red */
+    --success-color: #5CB85C;        /* Soft leaf green */
+    --border-subtle: #ECE9E2;
+}
+
+body {
+    background-color: #FDFBF7;       /* Warm, light ivory/candle wax color */
+    color: var(--text-color);
+    font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+/* ==========================================================================
+   1. NAVBAR CUSTOM STYLING (Top Instrument Header)
+   ========================================================================== */
+.navbar-custom {
+    background-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(141, 91, 76, 0.15);
+}
+
+.navbar-custom .navbar-brand {
+    color: #FFFFFF !important;
+    font-weight: 700;
+    font-size: 1.35rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: 0.5px;
+}
+
+.navbar-custom .nav-link {
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    padding: 8px 16px !important;
+}
+
+.navbar-custom .nav-link:hover,
+.navbar-custom .nav-link.active {
+    color: #FFFFFF !important;
+    background-color: rgba(255, 255, 255, 0.18);
+}
+
+/* ==========================================================================
+   2. CARD STYLING (Telemetry & Control Containers)
+   ========================================================================== */
+.card-custom {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(141, 91, 76, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+}
+
+.card-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(141, 91, 76, 0.10);
+}
+
+.card-header-custom {
+    background-color: #FBF9F5;
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 16px 20px;
+    font-weight: 600;
+    color: var(--primary-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ==========================================================================
+   3. STATUS BADGES & ALERTS (System LEDs)
+   ========================================================================== */
+.badge-low-stock {
+    background-color: #FDE8E8;
+    color: var(--danger-color);
+    border: 1px solid #F8B4B4;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 20px;
+}
+
+.badge-in-stock {
+    background-color: #DEF7EC;
+    color: #03543F;
+    border: 1px solid #BCF0DA;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 20px;
+}
+
+/* ==========================================================================
+   4. CUSTOM BUTTONS (Actuators)
+   ========================================================================== */
+.btn-primary-custom {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-primary-custom:hover,
+.btn-primary-custom:focus {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    color: white;
+}
+
+.btn-secondary-custom {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: #FFFFFF;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary-custom:hover {
+    background-color: #C08D5B;
+    border-color: #C08D5B;
+    color: #FFFFFF;
+}
+
+/* ==========================================================================
+   5. EXCEL DROPZONE (SheetJS File Input Port)
+   ========================================================================== */
+.dropzone-container {
+    border: 2px dashed var(--secondary-color);
+    border-radius: 12px;
+    padding: 35px 20px;
+    text-align: center;
+    background-color: #FCF9F3;
+    cursor: pointer;
+    transition: all 0.25s ease-in-out;
+}
+
+.dropzone-container:hover {
+    background-color: #F6EFE9;
+    border-color: var(--primary-color);
+}
+
+.dropzone-icon {
+    font-size: 3.2rem;
+    color: var(--secondary-color);
+    margin-bottom: 12px;
+    transition: transform 0.2s ease;
+}
+
+.dropzone-container:hover .dropzone-icon {
+    transform: scale(1.08);
+}
+
+/* ==========================================================================
+   6. TABLES & DATA VISUALIZATION
+   ========================================================================== */
+.table-custom {
+    width: 100% !important;
+}
+
+.table-custom thead th {
+    background-color: #FBF9F5 !important;
+    color: var(--primary-color) !important;
+    font-weight: 600 !important;
+    border-bottom: 2px solid var(--border-subtle) !important;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Border on large screens for split cards */
+@media (min-width: 992px) {
+    .border-end-lg {
+        border-right: 1px solid var(--border-subtle);
+    }
+}
+
+/* ==========================================================================
+   7. FOOTER
+   ========================================================================== */
+footer {
+    background-color: #F7F5F0;
+    border-top: 1px solid var(--border-subtle);
+    padding: 24px 0;
+    color: #8C8C8C;
+    margin-top: auto;
+}
