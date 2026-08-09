@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- 
+        VELISIMA - Candle Inventory & Cost Control
+        Phase 3: Order Tracking, Quotes & Sales History Dashboard
+        + Delivery Scheduling & High-Volume Smart Alert Banner
+    -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velisima | Pedidos, Ventas & Cotizaciones</title>
+
+    <!-- 1. Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- 2. Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    
+    <!-- 3. DataTables.net Bootstrap 5 Styling -->
+    <link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+
+    <!-- 4. Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- 5. Custom Styling -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- ========================================== -->
+    <!-- HEADER / NAVIGATION (Main System Bus Bar)   -->
+    <!-- ========================================== -->
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="bi bi-fire text-warning"></i>
+                <span>VELISIMA</span>
+                <span class="badge bg-light text-dark ms-2 fw-normal" style="font-size: 0.75rem;">v1.0 Local</span>
+            </a>
+
+            <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarPrincipal" aria-controls="navbarPrincipal" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="bi bi-list fs-2 text-white"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarPrincipal">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">
+                            <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="inventario.html">
+                            <i class="bi bi-box-seam me-1"></i> Inventario & Costeo
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="pedidos.html">
+                            <i class="bi bi-cart-check me-1"></i> Pedidos & Clientes
+                        </a>
+                    </li>
+                    <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+                        <button id="btn-reset-app" class="btn btn-outline-light btn-sm rounded-pill px-3" title="Restaura la base de datos a los valores de fábrica">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> Reset de Fábrica
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========================================== -->
+    <!-- MAIN CONTENT CONTAINER                     -->
+    <!-- ========================================== -->
+    <main class="container my-4">
+
+        <!-- High-Volume Orders Smart Notification Banner (> 10 Candles Alert) -->
+        <div id="alerta-alto-volumen-banner"></div>
+
+        <!-- Top Header & Action Toolbar -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+            <div>
+                <h1 class="h3 fw-bold mb-1" style="color: var(--primary-color);">
+                    <i class="bi bi-cart-check me-2"></i>Historial de Pedidos, Ventas & Cotizaciones
+                </h1>
+                <p class="text-muted mb-0">
+                    Control de órdenes de clientes, programación de entrega, alertas de alto volumen y análisis de margen.
+                </p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 py-2 fw-semibold" id="btn-exportar-pedidos-excel">
+                    <i class="bi bi-file-earmark-arrow-down-fill me-1"></i> Exportar Historial (.xlsx)
+                </button>
+                <button type="button" class="btn btn-primary-custom btn-sm rounded-pill px-3 py-2 fw-semibold" data-bs-toggle="modal" data-bs-target="#modalNuevoPedido">
+                    <i class="bi bi-plus-lg me-1"></i> + Registrar Nuevo Pedido
+                </button>
+            </div>
+        </div>
+
+        <!-- ========================================================================== -->
+        <!-- SECTION: TIME-BASED PRESET VIEWS & SALES TELEMETRY SCORECARD               -->
+        <!-- ========================================================================== -->
+        <div class="card card-custom mb-4">
+            <div class="card-header-custom">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-calendar-range-fill text-primary fs-5"></i>
+                    <span>Consola de Ventas & Visualización Temporal</span>
+                </div>
+                <span class="badge bg-light text-dark border">Filtro por Periodo</span>
+            </div>
+            <div class="card-body p-3 p-md-4">
+                
+                <!-- Period Toggle Buttons & Date Picker Row -->
+                <div class="row g-3 align-items-center justify-content-between mb-3">
+                    
+                    <!-- Preset Buttons: Semanal, Quincenal, Mensual, Todos -->
+                    <div class="col-lg-7">
+                        <label class="form-label small fw-semibold text-muted text-uppercase d-block mb-2">
+                            <i class="bi bi-funnel me-1"></i>Seleccionar Ventana Temporal:
+                        </label>
+                        <div class="d-flex flex-wrap gap-2 filter-btn-group" id="filtro-periodo-grupo">
+                            <button type="button" class="btn btn-outline-secondary btn-sm active" data-period="all">
+                                <i class="bi bi-calendar3 me-1"></i> Histórico Completo
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-period="semanal">
+                                <i class="bi bi-calendar-week me-1"></i> Semanal (7 días)
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-period="quincenal">
+                                <i class="bi bi-calendar-check me-1"></i> Quincenal (15 días)
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-period="mensual">
+                                <i class="bi bi-calendar-month me-1"></i> Mensual (30 días)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Exact Date Picker Filter -->
+                    <div class="col-lg-5">
+                        <label for="filtro-fecha-exacta" class="form-label small fw-semibold text-muted text-uppercase d-block mb-2">
+                            <i class="bi bi-search me-1"></i>Búsqueda por Fecha Exacta:
+                        </label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light"><i class="bi bi-calendar-event"></i></span>
+                            <input type="date" id="filtro-fecha-exacta" class="form-control">
+                            <button class="btn btn-outline-secondary" type="button" id="btn-limpiar-fecha" title="Limpiar filtro de fecha">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Telemetry Metrics for the Active Time Period -->
+                <div class="row g-3 pt-3 border-top">
+                    <div class="col-6 col-lg-3">
+                        <div class="p-2 p-md-3 bg-light rounded text-center border">
+                            <span class="text-muted text-uppercase" style="font-size: 0.7rem; font-weight: 600;">Ventas del Periodo</span>
+                            <h4 class="fw-bold text-dark my-1" id="stat-periodo-ventas">$0.00</h4>
+                            <small class="text-muted" id="stat-periodo-pedidos-count">0 pedidos</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="p-2 p-md-3 bg-light rounded text-center border">
+                            <span class="text-muted text-uppercase" style="font-size: 0.7rem; font-weight: 600;">Ganancia Neta</span>
+                            <h4 class="fw-bold text-success my-1" id="stat-periodo-ganancia">+$0.00</h4>
+                            <small class="text-muted">Utilidad del periodo</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="p-2 p-md-3 bg-light rounded text-center border">
+                            <span class="text-muted text-uppercase" style="font-size: 0.7rem; font-weight: 600;">Margen Promedio</span>
+                            <h4 class="fw-bold my-1 text-primary" id="stat-periodo-margen">0.0%</h4>
+                            <small class="text-muted">Rendimiento sobre ventas</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="p-2 p-md-3 bg-light rounded text-center border">
+                            <span class="text-muted text-uppercase" style="font-size: 0.7rem; font-weight: 600;">Cotizaciones Activas</span>
+                            <h4 class="fw-bold text-warning my-1" id="stat-cotizaciones-activas">0</h4>
+                            <small class="text-muted">Presupuestos pendientes</small>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ========================================================================== -->
+        <!-- SECTION: COTIZACIONES ACTIVAS (Active Quotes Management)                   -->
+        <!-- ========================================================================== -->
+        <div class="card card-custom mb-4 border-warning-subtle">
+            <div class="card-header-custom" style="background-color: #FFFDF7;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-file-earmark-text-fill text-warning fs-5"></i>
+                    <span class="fw-bold">Cotizaciones Activas (Presupuestos a Clientes)</span>
+                </div>
+                <span class="badge bg-warning text-dark" id="badge-total-cotizaciones">0 Activas</span>
+            </div>
+            <div class="card-body p-3 p-md-4">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle mb-0 w-100">
+                        <thead class="table-light small text-muted text-uppercase">
+                            <tr>
+                                <th style="width: 10%;">Folio</th>
+                                <th style="width: 12%;">Fecha</th>
+                                <th style="width: 18%;">Cliente</th>
+                                <th style="width: 15%;">Contacto</th>
+                                <th style="width: 25%;">Velas Cotizadas</th>
+                                <th style="width: 10%;" class="text-end">Total</th>
+                                <th style="width: 10%;" class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cotizaciones-tbody">
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-3 small">
+                                    No hay cotizaciones activas. Puedes crear una desde la calculadora del <a href="index.html" class="text-decoration-underline">Dashboard</a>.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================================== -->
+        <!-- SECTION: HISTORIAL DE PEDIDOS OFICIALES (DataTables)                       -->
+        <!-- ========================================================================== -->
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <div class="d-flex flex-wrap gap-1 filter-btn-group" id="filtro-pedidos-grupo">
+                <button type="button" class="btn btn-outline-secondary btn-sm active" data-filter="all">
+                    Todos los Estados (<span id="count-filtro-pedidos-all">0</span>)
+                </button>
+                <button type="button" class="btn btn-outline-warning btn-sm" data-filter="pendiente">
+                    <i class="bi bi-clock-history me-1"></i>Pendientes (<span id="count-filtro-pedidos-pend">0</span>)
+                </button>
+                <button type="button" class="btn btn-outline-success btn-sm" data-filter="entregado">
+                    <i class="bi bi-check-circle-fill me-1"></i>Entregados (<span id="count-filtro-pedidos-entr">0</span>)
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-filter="cancelado">
+                    Cancelados (<span id="count-filtro-pedidos-canc">0</span>)
+                </button>
+            </div>
+            <small class="text-muted">
+                <i class="bi bi-arrow-down-up me-1"></i>Haz clic en las columnas <strong>Total Venta</strong>, <strong>Ganancia</strong> o <strong>Margen %</strong> para ordenar de mayor a menor.
+            </small>
+        </div>
+
+        <div class="card card-custom">
+            <div class="card-body p-3 p-md-4">
+                <div class="table-responsive">
+                    <table id="tabla-pedidos" class="table table-custom table-hover align-middle w-100">
+                        <thead>
+                            <tr>
+                                <th style="width: 8%;">Folio</th>
+                                <th style="width: 14%;">Fecha / Entrega</th>
+                                <th style="width: 14%;">Cliente</th>
+                                <th style="width: 11%;">Contacto</th>
+                                <th style="width: 19%;">Velas Solicitadas</th>
+                                <th style="width: 9%;" class="text-end">Total Venta</th>
+                                <th style="width: 9%;" class="text-end">Ganancia</th>
+                                <th style="width: 8%;" class="text-end">Margen</th>
+                                <th style="width: 9%;" class="text-center">Estado</th>
+                                <th style="width: 5%;" class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated dynamically by DataTables / pedidos.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ========================================================================== -->
+    <!-- MODAL: REGISTRAR NUEVO PEDIDO CON FECHA DE ENTREGA                         -->
+    <!-- ========================================================================== -->
+    <div class="modal fade" id="modalNuevoPedido" tabindex="-1" aria-labelledby="modalNuevoPedidoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow" style="border-radius: 14px;">
+                <div class="modal-header bg-light border-bottom">
+                    <h5 class="modal-title fw-bold" id="modalNuevoPedidoLabel" style="color: var(--primary-color);">
+                        <i class="bi bi-cart-plus-fill me-2"></i>Registrar Nuevo Pedido de Cliente
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body p-4">
+                    <h6 class="fw-bold mb-3" style="color: var(--primary-color);">
+                        <i class="bi bi-person-circle me-1"></i> 1. Información del Cliente & Programación de Entrega
+                    </h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="pedido-cliente-nombre" class="form-label small fw-semibold">Nombre del Cliente / Contacto:</label>
+                            <input type="text" id="pedido-cliente-nombre" class="form-control form-control-sm" placeholder="Ej. Maria Lopez" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="pedido-cliente-telefono" class="form-label small fw-semibold">Teléfono / WhatsApp (10 dígitos):</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-light"><i class="bi bi-whatsapp text-success"></i></span>
+                                <input type="tel" id="pedido-cliente-telefono" class="form-control" placeholder="Ej. 5512345678">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="pedido-fecha-entrega" class="form-label small fw-semibold">
+                                <i class="bi bi-calendar-check text-primary me-1"></i>Fecha Programada de Entrega:
+                            </label>
+                            <input type="date" id="pedido-fecha-entrega" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="pedido-cliente-notas" class="form-label small fw-semibold">Notas / Indicaciones Especiales:</label>
+                            <input type="text" id="pedido-cliente-notas" class="form-control form-control-sm" placeholder="Ej. Empaque para regalo, entregar por la tarde">
+                        </div>
+                    </div>
+
+                    <hr class="my-3 text-muted">
+
+                    <h6 class="fw-bold mb-3" style="color: var(--primary-color);">
+                        <i class="bi bi-boxes me-1"></i> 2. Agregar Velas al Pedido
+                    </h6>
+                    
+                    <div class="p-3 bg-light rounded border mb-3">
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-6">
+                                <label for="pedido-item-vela" class="form-label small fw-semibold">Molde / Vela:</label>
+                                <select id="pedido-item-vela" class="form-select form-select-sm">
+                                    <option value="" disabled selected>Selecciona un molde...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="pedido-item-cera" class="form-label small fw-semibold">Tipo de Cera:</label>
+                                <select id="pedido-item-cera" class="form-select form-select-sm">
+                                    <option value="malasia" selected>Cera Malasia</option>
+                                    <option value="soya">Cera Soya</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="pedido-item-fragancia" class="form-label small fw-semibold">Aroma / Fragancia:</label>
+                                <select id="pedido-item-fragancia" class="form-select form-select-sm">
+                                    <option value="" disabled selected>Selecciona aroma...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 align-items-end">
+                            <div class="col-6 col-md-3">
+                                <label for="pedido-item-cant" class="form-label small fw-semibold">Cantidad:</label>
+                                <input type="number" id="pedido-item-cant" class="form-control form-control-sm" value="1" min="1">
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label for="pedido-item-precio" class="form-label small fw-semibold">Precio Unitario ($):</label>
+                                <input type="number" id="pedido-item-precio" class="form-control form-control-sm" min="0" step="1">
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <span class="small text-muted d-block mb-1">Stock en Almacén:</span>
+                                <span id="pedido-item-stock-info" class="badge bg-light text-dark border">0 uds disponibles</span>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <button type="button" id="btn-agregar-item-pedido" class="btn btn-secondary-custom btn-sm w-100 rounded-pill py-2">
+                                    <i class="bi bi-plus-circle me-1"></i> Agregar Vela
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive mb-3">
+                        <table class="table table-sm table-bordered align-middle mb-0">
+                            <thead class="table-light">
+                                <tr class="small text-muted text-uppercase">
+                                    <th>Vela / Molde</th>
+                                    <th>Cera</th>
+                                    <th>Fragancia</th>
+                                    <th class="text-center">Cant</th>
+                                    <th class="text-end">P. Unit</th>
+                                    <th class="text-end">Subtotal</th>
+                                    <th class="text-center">Quitar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pedido-items-tbody">
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-3 small">
+                                        No has agregado ninguna vela a este pedido.
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="5" class="text-end fw-bold">TOTAL DEL PEDIDO:</td>
+                                    <td class="text-end fw-bold text-success fs-6" id="pedido-total-display">$0.00</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <hr class="my-3 text-muted">
+
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-6">
+                            <label for="pedido-estado-select" class="form-label small fw-semibold">Estado Inicial del Pedido:</label>
+                            <select id="pedido-estado-select" class="form-select form-select-sm">
+                                <option value="pendiente" selected>Pendiente (Por fabricar o entregar)</option>
+                                <option value="entregado">Entregado / Pagado (Descontar stock ahora)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-2 rounded bg-light border small text-muted">
+                                <i class="bi bi-info-circle text-primary me-1"></i>
+                                <span>Si el pedido contiene <strong>más de 10 velas</strong>, el sistema activará automáticamente una alerta de alta prioridad para asegurar insumos.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light border-top">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary-custom rounded-pill px-4" id="btn-guardar-pedido">
+                        <i class="bi bi-check2-circle me-1"></i> Registrar Pedido
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================== -->
+    <!-- MODAL: VER DETALLE DEL PEDIDO                                              -->
+    <!-- ========================================================================== -->
+    <div class="modal fade" id="modalDetallePedido" tabindex="-1" aria-labelledby="modalDetallePedidoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow" style="border-radius: 14px;">
+                <div class="modal-header bg-light border-bottom">
+                    <h5 class="modal-title fw-bold" id="modalDetallePedidoLabel" style="color: var(--primary-color);">
+                        <i class="bi bi-receipt me-2"></i>Detalle de la Orden
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4" id="modal-detalle-body">
+                    <!-- Populated dynamically by JS -->
+                </div>
+                <div class="modal-footer bg-light border-top">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================== -->
+    <!-- MODAL: VISTA FORMAL PARA EL CLIENTE (Client-Facing View: NO PROFIT/COST) -->
+    <!-- ========================================================================== -->
+    <div class="modal fade" id="modalVerCotizacionCliente" tabindex="-1" aria-labelledby="modalVerCotizacionClienteLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 14px;">
+                <div class="modal-header bg-light border-bottom">
+                    <h5 class="modal-title fw-bold" id="modalVerCotizacionClienteLabel" style="color: var(--primary-color);">
+                        <i class="bi bi-receipt-cutoff me-2"></i>Cotización de Velas Artesanales
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body p-4" id="modal-cotizacion-cliente-body">
+                    <!-- Populated dynamically: NO PROFIT MARGINS / NO INGREDIENT COSTS -->
+                </div>
+
+                <div class="modal-footer bg-light border-top d-flex justify-content-between" id="modal-cotizacion-cliente-footer">
+                    <!-- Action buttons: WhatsApp, Print, Approve Order -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- FOOTER                                     -->
+    <!-- ========================================== -->
+    <footer class="text-center">
+        <div class="container">
+            <p class="mb-1 fw-semibold" style="color: var(--primary-color);">VELISIMA &copy; 2026</p>
+            <p class="text-muted small mb-0">Sistema Local de Costeo & Control de Stock de Velas Artesanales</p>
+        </div>
+    </footer>
+
+    <!-- ========================================== -->
+    <!-- JS LIBRARIES & APPLICATION DRIVERS         -->
+    <!-- ========================================== -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/pedidos.js"></script>
+
+</body>
+</html>

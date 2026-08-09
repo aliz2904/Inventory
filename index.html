@@ -4,27 +4,24 @@
     <!-- 
         VELISIMA - Candle Inventory & Cost Control
         Phase 1: Base Shell, Shared Layout & State Manager (The System Bus)
-        
-        Engineering Analogy:
-        - This HTML document is the physical chassis and front panel of our instrument.
-        - It links all external communication buses (CDNs for Bootstrap, SheetJS, and Icons).
+        + Quote System Integration (Cotizaciones)
     -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Velisima | Control de Costos e Inventario</title>
 
-    <!-- 1. Bootstrap 5 CSS (Design Grid & Component System) -->
+    <!-- 1. Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <!-- 2. Bootstrap Icons (Visual Indicators / Status LEDs) -->
+    <!-- 2. Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     
-    <!-- 3. Google Fonts (Modern Typography) -->
+    <!-- 3. Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- 4. Custom Styling (Velisima Warm Palette) -->
+    <!-- 4. Custom Styling -->
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -79,7 +76,10 @@
     <!-- ========================================== -->
     <main class="container my-4">
 
-        <!-- Low Stock Alert Banner (Dynamic: Activated by JS logic) -->
+        <!-- High-Volume Orders Smart Notification Banner -->
+        <div id="alerta-alto-volumen-banner"></div>
+
+        <!-- Low Stock Alert Banner -->
         <div id="alerta-stock-banner"></div>
 
         <!-- Hero / System Status Bar -->
@@ -103,7 +103,6 @@
         <!-- KPI METRICS ROW (System Telemetry Cards)   -->
         <!-- ========================================== -->
         <div class="row g-3 mb-4">
-            <!-- Metric 1: Product Catalog Count -->
             <div class="col-sm-6 col-lg-3">
                 <div class="card card-custom h-100 p-3">
                     <div class="d-flex justify-content-between align-items-center">
@@ -119,7 +118,6 @@
                 </div>
             </div>
 
-            <!-- Metric 2: Average Profit Margin -->
             <div class="col-sm-6 col-lg-3">
                 <div class="card card-custom h-100 p-3">
                     <div class="d-flex justify-content-between align-items-center">
@@ -135,7 +133,6 @@
                 </div>
             </div>
 
-            <!-- Metric 3: Total Stock Units -->
             <div class="col-sm-6 col-lg-3">
                 <div class="card card-custom h-100 p-3">
                     <div class="d-flex justify-content-between align-items-center">
@@ -151,7 +148,6 @@
                 </div>
             </div>
 
-            <!-- Metric 4: Inventory Market Value -->
             <div class="col-sm-6 col-lg-3">
                 <div class="card card-custom h-100 p-3">
                     <div class="d-flex justify-content-between align-items-center">
@@ -172,8 +168,6 @@
         <!-- ROW: EXCEL LOADER & CONFIGURATION (Phase 1)-->
         <!-- ========================================== -->
         <div class="row g-4 mb-4">
-            
-            <!-- Left Column: SheetJS Excel Drag-and-Drop Bus -->
             <div class="col-lg-7">
                 <div class="card card-custom h-100">
                     <div class="card-header-custom">
@@ -185,10 +179,9 @@
                     </div>
                     <div class="card-body p-4 d-flex flex-column justify-content-between">
                         <p class="text-muted small mb-3">
-                            Puedes cargar tu archivo <code>Costeo_Velas.xlsx</code> para actualizar automáticamente los costos de insumos, fórmulas y el catálogo completo de moldes en la memoria del navegador.
+                            Carga tu archivo <code>Costeo_Velas.xlsx</code> para actualizar automáticamente los costos de insumos, fórmulas, moldes y la lista de fragancias en la memoria del navegador.
                         </p>
 
-                        <!-- Interactive Drag & Drop Area -->
                         <div id="excel-upload-zone" class="dropzone-container my-auto">
                             <i class="bi bi-cloud-arrow-up-fill dropzone-icon d-block"></i>
                             <h5 class="fw-semibold mb-1">Arrastra tu archivo Excel aquí</h5>
@@ -196,20 +189,17 @@
                             <button type="button" class="btn btn-sm btn-primary-custom px-4 py-2 rounded-pill">
                                 <i class="bi bi-folder2-open me-1"></i> Explorar Archivos
                             </button>
-                            <!-- Hidden HTML File Input -->
                             <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="display: none;">
                         </div>
 
-                        <!-- Info Feedback Note -->
                         <div class="mt-3 p-2 rounded bg-light border d-flex align-items-center gap-2 small text-muted">
                             <i class="bi bi-info-circle-fill text-primary"></i>
-                            <span>El sistema lee la hoja <strong>"Costeo Velas"</strong> con sus parámetros y los 28 moldes definidos.</span>
+                            <span>Detecta automáticamente las hojas <strong>"Costeo Velas"</strong> (moldes y parámetros) y <strong>"Fragancias"</strong> (costos por 250ml).</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Column: Current Parameter Register Settings -->
             <div class="col-lg-5">
                 <div class="card card-custom h-100">
                     <div class="card-header-custom">
@@ -226,16 +216,20 @@
 
                         <ul class="list-group list-group-flush small mb-3">
                             <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
-                                <span><i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: var(--secondary-color);"></i> Costo Cera:</span>
-                                <strong class="badge bg-light text-dark border fs-6" id="param-costo-cera">$0.11 / g</strong>
+                                <span><i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: var(--primary-color);"></i> Cera Malasia (Moldes):</span>
+                                <strong class="badge bg-light text-dark border fs-6" id="param-costo-cera-malasia">$0.11 / g</strong>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
-                                <span><i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: var(--secondary-color);"></i> Costo Fragancia:</span>
-                                <strong class="badge bg-light text-dark border fs-6" id="param-costo-frag">$0.70 / g</strong>
+                                <span><i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: var(--success-color);"></i> Cera de Soya (Bouquets):</span>
+                                <strong class="badge bg-light text-dark border fs-6" id="param-costo-cera-soya">$0.14 / g</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                <span><i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: #D4A373;"></i> Catálogo de Fragancias:</span>
+                                <strong class="badge bg-light text-dark border fs-6" id="param-cant-fragancias">8 aromas</strong>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
                                 <span><i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: var(--secondary-color);"></i> % Fragancia Estándar:</span>
-                                <strong class="badge bg-light text-dark border fs-6" id="param-pct-frag">8%</strong>
+                                <strong class="badge bg-light text-dark border fs-6" id="param-pct-frag">8% (rango 6%-10%)</strong>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
                                 <span><i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: var(--secondary-color);"></i> % Aditivo Estándar:</span>
@@ -249,16 +243,15 @@
 
                         <div class="alert alert-info py-2 px-3 small mb-0 d-flex align-items-center">
                             <i class="bi bi-check2-circle fs-5 me-2"></i>
-                            <div>Cera calculada por residuo: <code>100% - Fragancia - Aditivo = 90%</code></div>
+                            <div>Cera calculada por residuo: <code>100% - % Fragancia - 2% Aditivo</code></div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
 
         <!-- ========================================== -->
-        <!-- ROW: QUICK MATERIAL CALCULATOR TOOL        -->
+        <!-- ROW: BATCH FABRICATION & MATERIAL PLANNER  -->
         <!-- ========================================== -->
         <div class="row g-4 mb-4">
             <div class="col-12">
@@ -266,74 +259,124 @@
                     <div class="card-header-custom">
                         <div class="d-flex align-items-center gap-2">
                             <i class="bi bi-calculator-fill text-warning fs-5"></i>
-                            <span>Calculadora Rápida de Lote de Producción (Función de Transferencia)</span>
+                            <span>Calculadora de Costos & Planificador de Fabricación</span>
                         </div>
-                        <span class="badge bg-primary-custom">Planificador</span>
+                        <span class="badge bg-primary-custom">Calculadora DSP</span>
                     </div>
                     <div class="card-body p-4">
                         <div class="row g-4">
-                            <!-- Input Form -->
+                            
+                            <!-- Form Column -->
                             <div class="col-lg-5 border-end-lg">
-                                <h6 class="fw-bold mb-3" style="color: var(--primary-color);">1. Añadir Moldes a Producir</h6>
+                                <h6 class="fw-bold mb-3" style="color: var(--primary-color);">
+                                    <i class="bi bi-plus-circle-dotted me-1"></i> Configurar Lote de Velas
+                                </h6>
+                                
                                 <form id="calc-form" onsubmit="return false;">
                                     <div class="mb-3">
-                                        <label for="calc-vela-select" class="form-label small fw-semibold">Seleccionar Molde / Vela:</label>
+                                        <label for="calc-vela-select" class="form-label small fw-semibold">1. Molde / Vela:</label>
                                         <select id="calc-vela-select" class="form-select form-select-sm">
                                             <option value="" disabled selected>Cargando catálogo...</option>
                                         </select>
                                     </div>
+
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-sm-6">
+                                            <label for="calc-cera-select" class="form-label small fw-semibold">2. Tipo de Cera:</label>
+                                            <select id="calc-cera-select" class="form-select form-select-sm">
+                                                <option value="malasia" selected>Cera Malasia ($0.11/g)</option>
+                                                <option value="soya">Cera de Soya ($0.14/g)</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <label for="calc-pct-frag-select" class="form-label small fw-semibold">3. % Fragancia:</label>
+                                            <select id="calc-pct-frag-select" class="form-select form-select-sm">
+                                                <option value="0.06">6% (Aroma suave)</option>
+                                                <option value="0.07">7%</option>
+                                                <option value="0.08" selected>8% (Estándar recomendado)</option>
+                                                <option value="0.09">9%</option>
+                                                <option value="0.10">10% (Aroma intenso)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
                                     <div class="mb-3">
-                                        <label for="calc-cantidad" class="form-label small fw-semibold">Cantidad de unidades:</label>
+                                        <label for="calc-fragancia-select" class="form-label small fw-semibold">4. Fragancia / Aroma:</label>
+                                        <select id="calc-fragancia-select" class="form-select form-select-sm">
+                                            <option value="" disabled selected>Cargando fragancias...</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="calc-cantidad" class="form-label small fw-semibold">5. Cantidad de unidades a fabricar/cotizar:</label>
                                         <input type="number" id="calc-cantidad" class="form-control form-control-sm" value="1" min="1">
                                     </div>
-                                    <button type="button" id="btn-calc-agregar" class="btn btn-secondary-custom btn-sm w-100 rounded-pill">
+
+                                    <button type="button" id="btn-calc-agregar" class="btn btn-secondary-custom btn-sm w-100 rounded-pill py-2">
                                         <i class="bi bi-plus-circle me-1"></i> Agregar al Plan de Fabricación
                                     </button>
                                 </form>
 
                                 <div class="mt-4">
-                                    <h6 class="fw-bold mb-2 small text-muted text-uppercase">Lista de Moldes en el Lote:</h6>
-                                    <ul id="calc-items-list" class="list-group list-group-flush" style="max-height: 180px; overflow-y: auto;">
+                                    <h6 class="fw-bold mb-2 small text-muted text-uppercase">Moldes en este Lote:</h6>
+                                    <ul id="calc-items-list" class="list-group list-group-flush" style="max-height: 220px; overflow-y: auto;">
                                         <li class="list-group-item text-center text-muted small py-3">Ningún molde agregado al plan</li>
                                     </ul>
                                 </div>
                             </div>
 
-                            <!-- Output Summary -->
-                            <div class="col-lg-7">
-                                <h6 class="fw-bold mb-3" style="color: var(--primary-color);">2. Insumos Totales Requeridos (Output Bus)</h6>
-                                <div class="row g-3">
-                                    <div class="col-6 col-sm-4">
-                                        <div class="p-3 bg-light rounded text-center border">
-                                            <span class="text-muted small d-block mb-1">Cera de Soya</span>
-                                            <h4 class="fw-bold text-dark mb-0" id="out-total-cera">0 g</h4>
+                            <!-- Output Summary Column -->
+                            <div class="col-lg-7 d-flex flex-column justify-content-between">
+                                <div>
+                                    <h6 class="fw-bold mb-3" style="color: var(--primary-color);">
+                                        <i class="bi bi-basket3 me-1"></i> Insumos Requeridos para el Lote
+                                    </h6>
+                                    
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-6 col-sm-4">
+                                            <div class="p-3 bg-light rounded text-center border">
+                                                <span class="text-muted small d-block mb-1">Cera Total</span>
+                                                <h4 class="fw-bold text-dark mb-0" id="out-total-cera">0 g</h4>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-6 col-sm-4">
-                                        <div class="p-3 bg-light rounded text-center border">
-                                            <span class="text-muted small d-block mb-1">Fragancia</span>
-                                            <h4 class="fw-bold text-dark mb-0" id="out-total-frag">0 g</h4>
+                                        <div class="col-6 col-sm-4">
+                                            <div class="p-3 bg-light rounded text-center border">
+                                                <span class="text-muted small d-block mb-1">Fragancia Total</span>
+                                                <h4 class="fw-bold text-dark mb-0" id="out-total-frag">0 g</h4>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-6 col-sm-4">
-                                        <div class="p-3 bg-light rounded text-center border">
-                                            <span class="text-muted small d-block mb-1">Aditivos</span>
-                                            <h4 class="fw-bold text-dark mb-0" id="out-total-adit">0 g</h4>
+                                        <div class="col-6 col-sm-4">
+                                            <div class="p-3 bg-light rounded text-center border">
+                                                <span class="text-muted small d-block mb-1">Aditivos (2%)</span>
+                                                <h4 class="fw-bold text-dark mb-0" id="out-total-adit">0 g</h4>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-6 col-sm-4">
-                                        <div class="p-3 bg-light rounded text-center border">
-                                            <span class="text-muted small d-block mb-1">Pabilos</span>
-                                            <h4 class="fw-bold text-dark mb-0" id="out-total-pab">0 uds</h4>
+                                        <div class="col-6 col-sm-4">
+                                            <div class="p-3 bg-light rounded text-center border">
+                                                <span class="text-muted small d-block mb-1">Pabilos</span>
+                                                <h4 class="fw-bold text-dark mb-0" id="out-total-pab">0 uds</h4>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-12 col-sm-8">
-                                        <div class="p-3 rounded text-center border text-white" style="background-color: var(--primary-color);">
-                                            <span class="text-white-50 small d-block mb-1">Costo Estimado de Materia Prima</span>
-                                            <h3 class="fw-bold text-white mb-0" id="out-costo-total">$0.00</h3>
+                                        <div class="col-12 col-sm-8">
+                                            <div class="p-3 rounded text-center border text-white shadow-sm" style="background-color: var(--primary-color);">
+                                                <span class="text-white-50 small d-block mb-1">Costo Estimado de Materia Prima</span>
+                                                <h3 class="fw-bold text-white mb-0" id="out-costo-total">$0.00</h3>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- QUOTE SYSTEM BUTTON: Placed directly below the cost calculator -->
+                                <div class="mt-4 pt-3 border-top d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+                                    <div class="small text-muted">
+                                        <i class="bi bi-file-earmark-person me-1"></i> ¿Deseas enviar este presupuesto a un cliente?
+                                    </div>
+                                    <button type="button" class="btn btn-primary-custom rounded-pill px-4 py-2 fw-semibold shadow-sm" id="btn-crear-cotizacion-calc">
+                                        <i class="bi bi-file-earmark-text-fill me-1"></i> Crear Cotización
+                                    </button>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -342,6 +385,102 @@
         </div>
 
     </main>
+
+    <!-- ========================================================================== -->
+    <!-- MODAL 1: CREAR COTIZACIÓN (Captura de Cliente desde la Calculadora)        -->
+    <!-- ========================================================================== -->
+    <div class="modal fade" id="modalCrearCotizacion" tabindex="-1" aria-labelledby="modalCrearCotizacionLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow" style="border-radius: 14px;">
+                <div class="modal-header bg-light border-bottom">
+                    <h5 class="modal-title fw-bold" id="modalCrearCotizacionLabel" style="color: var(--primary-color);">
+                        <i class="bi bi-file-earmark-text-fill me-2"></i>Generar Cotización a Cliente
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body p-4">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="cotizacion-cliente-nombre" class="form-label small fw-semibold">Nombre del Cliente / Empresa:</label>
+                            <input type="text" id="cotizacion-cliente-nombre" class="form-control form-control-sm" placeholder="Ej. Ana Martínez" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="cotizacion-cliente-tel" class="form-label small fw-semibold">Teléfono / WhatsApp:</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-light"><i class="bi bi-whatsapp text-success"></i></span>
+                                <input type="tel" id="cotizacion-cliente-tel" class="form-control" placeholder="Ej. 5512345678">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label for="cotizacion-cliente-notas" class="form-label small fw-semibold">Condiciones / Notas de la Cotización:</label>
+                            <input type="text" id="cotizacion-cliente-notas" class="form-control form-control-sm" value="Vigencia de precios: 15 días naturales. 50% anticipo.">
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold small text-muted text-uppercase mb-2">Artículos Incluidos en la Cotización:</h6>
+                    <div class="table-responsive mb-3">
+                        <table class="table table-sm table-bordered align-middle mb-0">
+                            <thead class="table-light small">
+                                <tr>
+                                    <th>Vela / Molde</th>
+                                    <th>Cera</th>
+                                    <th>Fragancia</th>
+                                    <th class="text-end">Precio Venta</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cotizacion-items-preview">
+                                <!-- Populated dynamically from calculator batch -->
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="4" class="text-end fw-bold">TOTAL COTIZADO:</td>
+                                    <td class="text-end fw-bold text-success fs-6" id="cotizacion-total-preview">$0.00</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div class="alert alert-info py-2 px-3 small mb-0 d-flex align-items-center">
+                        <i class="bi bi-shield-lock-fill fs-5 me-2"></i>
+                        <div><strong>Vista protegida para el cliente:</strong> Al guardar, se creará una vista formal que oculta 100% tus márgenes de ganancia y costos de insumos, lista para enviar por WhatsApp o imprimir.</div>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light border-top">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary-custom rounded-pill px-4" onclick="guardarCotizacionActual()">
+                        <i class="bi bi-check2-circle me-1"></i> Guardar y Ver Cotización
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================== -->
+    <!-- MODAL 2: VISTA FORMAL PARA EL CLIENTE (Client-Facing View: NO PROFIT/COST) -->
+    <!-- ========================================================================== -->
+    <div class="modal fade" id="modalVerCotizacionCliente" tabindex="-1" aria-labelledby="modalVerCotizacionClienteLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 14px;">
+                <div class="modal-header bg-light border-bottom">
+                    <h5 class="modal-title fw-bold" id="modalVerCotizacionClienteLabel" style="color: var(--primary-color);">
+                        <i class="bi bi-receipt-cutoff me-2"></i>Cotización de Velas Artesanales
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body p-4" id="modal-cotizacion-cliente-body">
+                    <!-- Populated dynamically: NO PROFIT MARGINS / NO INGREDIENT COSTS -->
+                </div>
+
+                <div class="modal-footer bg-light border-top d-flex justify-content-between" id="modal-cotizacion-cliente-footer">
+                    <!-- Action buttons: WhatsApp, Print, Approve Order -->
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- ========================================== -->
     <!-- FOOTER                                     -->
@@ -354,15 +493,10 @@
     </footer>
 
     <!-- ========================================== -->
-    <!-- EXTERNAL JS LIBRARIES (Drivers & Buses)     -->
+    <!-- JS LIBRARIES                               -->
     <!-- ========================================== -->
-    <!-- 1. Bootstrap 5 Bundle JS (Modal, Dropdown, Nav behaviors) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- 2. SheetJS (Excel .xlsx / .xls Parser Engine) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-    <!-- 3. Velisima Main Application Controller -->
     <script src="js/app.js"></script>
 
 </body>
