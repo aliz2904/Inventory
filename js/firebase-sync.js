@@ -27,11 +27,13 @@ window.firebaseStateReady = new Promise((resolve) => {
     
     window.db.ref('velisima_data').on('value', (snapshot) => {
         const data = snapshot.val();
-        if (data) {
+        
+        // Verificamos si Firebase tiene datos REALES (productos)
+        if (data && data.products && data.products.length > 0) {
             window.APP_STATE = data;
             console.log("Datos sincronizados desde la nube.");
         } else {
-            console.log("Base de datos en la nube vacía. Migrando datos locales...");
+            console.log("Nube vacía o incompleta. Migrando datos locales fuertes...");
             migrateLocalToFirebase();
         }
         
