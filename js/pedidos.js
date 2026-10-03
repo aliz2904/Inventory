@@ -22,30 +22,34 @@ let itemsNuevoPedido = [];
 // 1. INITIALIZATION ON DOM READY
 // ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
-    const state = getAppState();
+    if (window.firebaseStateReady) {
+        window.firebaseStateReady.then(iniciarPedidos);
+    } else {
+        iniciarPedidos();
+    }
     
-    // 1. Check & Render High-Volume Smart Notification Banner
-    verificarAlertasAltoVolumen(state);
+    function iniciarPedidos() {
+        const state = getAppState();
+        verificarAlertasAltoVolumen(state);
+        renderizarTablaCotizaciones(state);
+        inicializarTablaPedidos(state);
+        configurarFiltrosPedidos();
+        configurarFiltrosPeriodo();
+        configurarFiltroFechaExacta();
+        actualizarTelemetriaPeriodo(state);
+        configurarConstructorPedido(state);
+        configurarExportacionPedidosExcel();
+    }
     
-    // 2. Render Active Quotes Table
-    renderizarTablaCotizaciones(state);
-    
-    // 3. Initialize DataTables for Orders with Period & Status Filters
-    inicializarTablaPedidos(state);
-    
-    // 4. Setup Filter Listeners (Period presets, exact date, status pills)
-    configurarFiltrosPedidos();
-    configurarFiltrosPeriodo();
-    configurarFiltroFechaExacta();
-    
-    // 5. Compute and render Period Telemetry Scorecard
-    actualizarTelemetriaPeriodo(state);
-    
-    // 6. Setup Order Builder Modal & Event Listeners
-    configurarConstructorPedido(state);
-    
-    // 7. Setup Excel Export
-    configurarExportacionPedidosExcel();
+    window.addEventListener('firebaseUpdate', () => {
+        const state = getAppState();
+        verificarAlertasAltoVolumen(state);
+        renderizarTablaCotizaciones(state);
+        actualizarTelemetriaPeriodo(state);
+        if ($('#tabla-pedidos').length > 0) {
+            $('#tabla-pedidos').DataTable().clear().rows.add(state.orders || []).draw(false);
+        }
+    });
 });
 
 // ==========================================================================
@@ -181,6 +185,9 @@ function renderizarTablaCotizaciones(state) {
                 <div class="btn-group btn-group-sm">
                     <button type="button" class="btn btn-outline-primary border-0 rounded-circle" onclick="verCotizacionCliente(${q.id})" title="Ver / Compartir Cotización (Vista Cliente sin márgenes)">
                         <i class="bi bi-eye-fill"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary border-0 rounded-circle" onclick="editarCotizacion(${q.id})" title="Editar Cotización">
+                        <i class="bi bi-pencil-square"></i>
                     </button>
                     <button type="button" class="btn btn-outline-success border-0 rounded-circle" onclick="aprobarCotizacionGlobal(${q.id})" title="Aprobar y Convertir en Pedido Oficial">
                         <i class="bi bi-check2-circle"></i>
@@ -403,8 +410,17 @@ function inicializarTablaPedidos(state) {
                 data: 'id',
                 className: 'text-center',
                 orderable: false,
-                render: (data) => `
+                render: (data, type, row) => {
+                    const est = (row.estado || 'pendiente').toLowerCase();
+                    const btnEditar = est === 'pendiente' ? `
+                        <button type="button" class="btn btn-outline-secondary border-0 rounded-circle" onclick="editarPedido(${data})" title="Editar Pedido">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                    ` : '';
+                    
+                    return `
                     <div class="btn-group btn-group-sm">
+                        ${btnEditar}
                         <button type="button" class="btn btn-outline-primary border-0 rounded-circle" onclick="verDetallePedido(${data})" title="Ver detalles del pedido">
                             <i class="bi bi-eye-fill"></i>
                         </button>
@@ -412,7 +428,8 @@ function inicializarTablaPedidos(state) {
                             <i class="bi bi-trash-fill"></i>
                         </button>
                     </div>
-                `
+                    `;
+                }
             }
         ],
         order: [[0, 'desc']]
@@ -612,7 +629,24 @@ function configurarConstructorPedido(state) {
         selectFrag.appendChild(opt);
     });
     
-    selectVela.addEventListener('change', () => {
+    // Inicializar Select2 para búsqueda dentro del modal
+    if ($.fn.select2) {
+        $(selectVela).select2({
+            theme: 'bootstrap-5',
+            dropdownParent: $('#modalNuevoPedido')
+        });
+    }
+    
+    // Si es select2 se debe usar el evento de JQuery
+    if ($.fn.select2) {
+        $(selectVela).on('select2:select', function (e) {
+            triggerVelaChange();
+        });
+    } else {
+        selectVela.addEventListener('change', triggerVelaChange);
+    }
+    
+    function triggerVelaChange() {
         const prodId = parseInt(selectVela.value);
         const prod = state.products.find(p => p.id === prodId);
         if (prod) {
@@ -623,12 +657,13 @@ function configurarConstructorPedido(state) {
             stockInfoBadge.textContent = `${stock} uds en almacén`;
             stockInfoBadge.className = stock > 0 ? 'badge bg-success-subtle text-success border' : 'badge bg-danger-subtle text-danger border';
         }
-    });
+    }
     
     btnAgregarItem.addEventListener('click', () => {
         const prodId = parseInt(selectVela.value);
         const tipoCera = selectCera.value || 'malasia';
         const fraganciaNombre = selectFrag.value;
+        const colorVela = document.getElementById('pedido-item-color').value || 'base';
         const cant = parseInt(inputCant.value);
         const precioUnit = parseFloat(inputPrecio.value);
         
@@ -668,6 +703,7 @@ function configurarConstructorPedido(state) {
             gramaje: prodObj.gramaje,
             tipo_cera: tipoCera,
             fragancia: fraganciaNombre,
+            color: colorVela,
             cantidad: cant,
             precio_unitario: precioUnit,
             costo_unitario: calc.total_insumos,
@@ -685,6 +721,8 @@ function configurarConstructorPedido(state) {
         actualizarTablaItemsNuevoPedido();
     });
     
+    document.getElementById('pedido-descuento-global').addEventListener('input', actualizarTablaItemsNuevoPedido);
+    
     function actualizarTablaItemsNuevoPedido() {
         tbodyItems.innerHTML = '';
         
@@ -696,7 +734,8 @@ function configurarConstructorPedido(state) {
                     </td>
                 </tr>
             `;
-            totalDisplay.textContent = '$0.00';
+            document.getElementById('pedido-subtotal-display').textContent = '$0.00';
+            document.getElementById('pedido-total-display').textContent = '$0.00';
             return;
         }
         
@@ -708,7 +747,7 @@ function configurarConstructorPedido(state) {
             
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td class="fw-semibold">${item.nombre}</td>
+                <td class="fw-semibold">${item.nombre} <span class="badge bg-light border text-dark ms-1">${item.color || 'base'}</span></td>
                 <td><span class="badge ${item.tipo_cera === 'soya' ? 'bg-success' : 'bg-secondary'} small">${ceraBadge}</span></td>
                 <td>${item.fragancia}</td>
                 <td class="text-center fw-bold">${item.cantidad}</td>
@@ -723,7 +762,13 @@ function configurarConstructorPedido(state) {
             tbodyItems.appendChild(tr);
         });
         
-        totalDisplay.textContent = `$${sumTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        const subtotalOriginal = sumTotal;
+        const descuentoGlobalPct = parseFloat(document.getElementById('pedido-descuento-global').value) || 0;
+        const descuentoMonto = sumTotal * (descuentoGlobalPct / 100);
+        const totalFinal = sumTotal - descuentoMonto;
+        
+        document.getElementById('pedido-subtotal-display').textContent = `$${subtotalOriginal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        document.getElementById('pedido-total-display').textContent = `$${totalFinal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
     }
     
     window.quitarItemNuevoPedido = function(index) {
@@ -731,12 +776,82 @@ function configurarConstructorPedido(state) {
         actualizarTablaItemsNuevoPedido();
     };
     
+    window.prepararNuevoPedido = function() {
+        document.getElementById('modal-edit-type').value = 'order';
+        document.getElementById('modal-edit-id').value = '';
+        document.getElementById('modal-title-text').textContent = 'Registrar Nuevo Pedido de Cliente';
+        document.getElementById('seccion-estado-pedido').style.display = 'flex';
+        
+        document.getElementById('pedido-cliente-nombre').value = '';
+        document.getElementById('pedido-cliente-telefono').value = '';
+        document.getElementById('pedido-fecha-entrega').value = '';
+        document.getElementById('pedido-cliente-notas').value = '';
+        document.getElementById('pedido-descuento-global').value = 0;
+        document.getElementById('pedido-estado-select').value = 'pendiente';
+        
+        itemsNuevoPedido = [];
+        actualizarTablaItemsNuevoPedido();
+        
+        const modal = new bootstrap.Modal(document.getElementById('modalNuevoPedido'));
+        modal.show();
+    };
+    
+    window.editarPedido = function(id) {
+        const state = getAppState();
+        const order = (state.orders || []).find(o => o.id == id);
+        if (!order) return;
+        
+        document.getElementById('modal-edit-type').value = 'order';
+        document.getElementById('modal-edit-id').value = order.id;
+        document.getElementById('modal-title-text').textContent = `Editar Pedido #${order.folio}`;
+        document.getElementById('seccion-estado-pedido').style.display = 'flex';
+        
+        document.getElementById('pedido-cliente-nombre').value = order.cliente || '';
+        document.getElementById('pedido-cliente-telefono').value = order.telefono || '';
+        document.getElementById('pedido-fecha-entrega').value = order.fecha_entrega || '';
+        document.getElementById('pedido-cliente-notas').value = order.notas || '';
+        document.getElementById('pedido-descuento-global').value = order.descuento_porcentaje || 0;
+        document.getElementById('pedido-estado-select').value = (order.estado || 'pendiente').toLowerCase();
+        
+        itemsNuevoPedido = JSON.parse(JSON.stringify(order.items || []));
+        actualizarTablaItemsNuevoPedido();
+        
+        const modal = new bootstrap.Modal(document.getElementById('modalNuevoPedido'));
+        modal.show();
+    };
+    
+    window.editarCotizacion = function(id) {
+        const state = getAppState();
+        const quote = (state.quotes || []).find(q => q.id == id);
+        if (!quote) return;
+        
+        document.getElementById('modal-edit-type').value = 'quote';
+        document.getElementById('modal-edit-id').value = quote.id;
+        document.getElementById('modal-title-text').textContent = `Editar Cotización #${quote.folio || 'COT-' + quote.id}`;
+        document.getElementById('seccion-estado-pedido').style.display = 'none';
+        
+        document.getElementById('pedido-cliente-nombre').value = quote.cliente || '';
+        document.getElementById('pedido-cliente-telefono').value = quote.telefono || '';
+        document.getElementById('pedido-fecha-entrega').value = '';
+        document.getElementById('pedido-cliente-notas').value = quote.notas || '';
+        document.getElementById('pedido-descuento-global').value = quote.descuento_porcentaje || 0;
+        
+        itemsNuevoPedido = JSON.parse(JSON.stringify(quote.items || []));
+        actualizarTablaItemsNuevoPedido();
+        
+        const modal = new bootstrap.Modal(document.getElementById('modalNuevoPedido'));
+        modal.show();
+    };
+
     btnGuardarPedido.addEventListener('click', () => {
+        const editType = document.getElementById('modal-edit-type').value;
+        const editId = document.getElementById('modal-edit-id').value;
         const clienteNombre = document.getElementById('pedido-cliente-nombre').value.trim();
         const clienteTel = document.getElementById('pedido-cliente-telefono').value.trim();
         const fechaEntrega = document.getElementById('pedido-fecha-entrega').value || '';
         const clienteNotas = document.getElementById('pedido-cliente-notas').value.trim();
         const estadoInicial = document.getElementById('pedido-estado-select').value;
+        const descuentoGlobalPct = parseFloat(document.getElementById('pedido-descuento-global').value) || 0;
         
         if (!clienteNombre) {
             alert("Por favor ingresa el nombre del cliente.");
@@ -749,10 +864,7 @@ function configurarConstructorPedido(state) {
         
         const currentState = getAppState();
         const orders = currentState.orders || [];
-        
-        const maxId = orders.reduce((max, o) => o.id > max ? o.id : max, 0);
-        const newId = maxId + 1;
-        const folioStr = `PED-${String(newId).padStart(3, '0')}`;
+        const quotes = currentState.quotes || [];
         
         let totalVenta = 0;
         let totalCosto = 0;
@@ -763,63 +875,93 @@ function configurarConstructorPedido(state) {
             totalCosto += i.costo_subtotal;
             totalVelas += i.cantidad;
         });
+        
+        const descuentoMonto = totalVenta * (descuentoGlobalPct / 100);
+        totalVenta = totalVenta - descuentoMonto;
         const gananciaTotal = totalVenta - totalCosto;
         
-        const fechaStr = new Date().toISOString().slice(0, 10);
-        
-        const nuevoPedido = {
-            id: newId,
-            folio: folioStr,
-            fecha: fechaStr,
-            fecha_entrega: fechaEntrega ? fechaEntrega.slice(0, 10) : '',
-            cliente: clienteNombre,
-            telefono: clienteTel,
-            notas: clienteNotas,
-            items: [...itemsNuevoPedido],
-            total: totalVenta,
-            costo_total: totalCosto,
-            ganancia_total: gananciaTotal,
-            estado: estadoInicial,
-            stock_descontado: false
-        };
-        
-        if (estadoInicial === 'entregado') {
-            nuevoPedido.items.forEach(item => {
-                const prod = currentState.products.find(p => p.id === item.producto_id);
-                if (prod) {
-                    const s = parseInt(prod.stock) || 0;
-                    prod.stock = Math.max(0, s - item.cantidad);
-                }
-            });
-            nuevoPedido.stock_descontado = true;
+        if (editType === 'order' && editId) {
+            const idx = orders.findIndex(o => o.id == editId);
+            if (idx > -1) {
+                orders[idx].cliente = clienteNombre;
+                orders[idx].telefono = clienteTel;
+                orders[idx].fecha_entrega = fechaEntrega ? fechaEntrega.slice(0, 10) : '';
+                orders[idx].notas = clienteNotas;
+                orders[idx].items = [...itemsNuevoPedido];
+                orders[idx].total = totalVenta;
+                orders[idx].costo_total = totalCosto;
+                orders[idx].ganancia_total = gananciaTotal;
+                orders[idx].descuento_porcentaje = descuentoGlobalPct;
+                orders[idx].estado = estadoInicial;
+                
+                saveAppState({ orders: orders });
+                recargarVistaPedidos(currentState);
+            }
+        } else if (editType === 'quote' && editId) {
+            const idx = quotes.findIndex(q => q.id == editId);
+            if (idx > -1) {
+                quotes[idx].cliente = clienteNombre;
+                quotes[idx].telefono = clienteTel;
+                quotes[idx].notas = clienteNotas;
+                quotes[idx].items = [...itemsNuevoPedido];
+                quotes[idx].total = totalVenta;
+                quotes[idx].descuento_porcentaje = descuentoGlobalPct;
+                
+                saveAppState({ quotes: quotes });
+                recargarVistaPedidos(currentState);
+            }
+        } else {
+            // New Order
+            const maxId = orders.reduce((max, o) => o.id > max ? o.id : max, 0);
+            const newId = maxId + 1;
+            const folioStr = `PED-${String(newId).padStart(3, '0')}`;
+            const fechaStr = new Date().toISOString().slice(0, 10);
+            
+            const nuevoPedido = {
+                id: newId,
+                folio: folioStr,
+                fecha: fechaStr,
+                fecha_entrega: fechaEntrega ? fechaEntrega.slice(0, 10) : '',
+                cliente: clienteNombre,
+                telefono: clienteTel,
+                notas: clienteNotas,
+                items: [...itemsNuevoPedido],
+                total: totalVenta,
+                costo_total: totalCosto,
+                ganancia_total: gananciaTotal,
+                descuento_porcentaje: descuentoGlobalPct,
+                estado: estadoInicial,
+                stock_descontado: false
+            };
+            
+            if (estadoInicial === 'entregado') {
+                nuevoPedido.items.forEach(item => {
+                    const prod = currentState.products.find(p => p.id === item.producto_id);
+                    if (prod) {
+                        if (!prod.stock_por_color) prod.stock_por_color = { base: parseInt(prod.stock) || 0 };
+                        const c = item.color || 'base';
+                        prod.stock_por_color[c] = Math.max(0, (prod.stock_por_color[c] || 0) - item.cantidad);
+                        prod.stock = Object.values(prod.stock_por_color).reduce((sum, qty) => sum + qty, 0);
+                    }
+                });
+                nuevoPedido.stock_descontado = true;
+            }
+            
+            orders.unshift(nuevoPedido);
+            saveAppState({ products: currentState.products, orders: orders });
+            recargarVistaPedidos(currentState);
+            verificarAlertasAltoVolumen(currentState);
+            
+            let confirmMsg = `¡Pedido #${folioStr} registrado exitosamente para ${clienteNombre}!`;
+            if (totalVelas > 10 && estadoInicial === 'pendiente') {
+                confirmMsg += `\n\n⚠️ ¡ATENCIÓN! Este pedido contiene ${totalVelas} velas (> 10). Se ha activado la Alerta de Alto Volumen en el panel superior.`;
+            }
+            alert(confirmMsg);
         }
-        
-        orders.unshift(nuevoPedido);
-        
-        saveAppState({
-            products: currentState.products,
-            orders: orders
-        });
-        
-        document.getElementById('pedido-cliente-nombre').value = '';
-        document.getElementById('pedido-cliente-telefono').value = '';
-        document.getElementById('pedido-fecha-entrega').value = '';
-        document.getElementById('pedido-cliente-notas').value = '';
-        itemsNuevoPedido = [];
-        actualizarTablaItemsNuevoPedido();
         
         const modalEl = document.getElementById('modalNuevoPedido');
         const modalInstance = bootstrap.Modal.getInstance(modalEl);
         if (modalInstance) modalInstance.hide();
-        
-        recargarVistaPedidos(currentState);
-        verificarAlertasAltoVolumen(currentState);
-        
-        let confirmMsg = `¡Pedido #${folioStr} registrado exitosamente para ${clienteNombre}!`;
-        if (totalVelas > 10 && estadoInicial === 'pendiente') {
-            confirmMsg += `\n\n⚠️ ¡ATENCIÓN! Este pedido contiene ${totalVelas} velas (> 10). Se ha activado la Alerta de Alto Volumen en el panel superior.`;
-        }
-        alert(confirmMsg);
     });
 }
 

@@ -3,15 +3,12 @@
 <head>
     <!-- 
         VELISIMA - Candle Inventory & Cost Control
-        Phase 2: Interactive Inventory Table (The Stock Register)
-        
-        Engineering Analogy:
-        - This document represents the Stock Register Bank / RAM Table.
-        - DataTables acts as the multiplexer / filter bus, allowing real-time searching, sorting, and inline updates.
+        Phase 2: Interactive Inventory Table (The Stock Register Controller)
+        + Insumos & Raw Materials Inventory Management (Ceras & Fragancias)
     -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Velisima | Inventario & Costeo de Velas</title>
+    <title>Velisima | Inventario & Insumos</title>
 
     <!-- 1. Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -30,6 +27,7 @@
 
     <!-- 5. Custom Styling -->
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
@@ -38,21 +36,24 @@
     <!-- ========================================== -->
     <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
         <div class="container">
+            <!-- Brand / Logo -->
             <a class="navbar-brand" href="index.html">
                 <i class="bi bi-fire text-warning"></i>
                 <span>VELISIMA</span>
                 <span class="badge bg-light text-dark ms-2 fw-normal" style="font-size: 0.75rem;">v1.0 Local</span>
             </a>
 
+            <!-- Mobile Hamburger Toggle -->
             <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarPrincipal" aria-controls="navbarPrincipal" aria-expanded="false" aria-label="Toggle navigation">
                 <i class="bi bi-list fs-2 text-white"></i>
             </button>
 
+            <!-- Navigation Links -->
             <div class="collapse navbar-collapse" id="navbarPrincipal">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
                     <li class="nav-item">
                         <a class="nav-link" href="index.html">
-                            <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                            <i class="bi bi-speedometer2 me-1"></i> Dashboard & Analítica
                         </a>
                     </li>
                     <li class="nav-item">
@@ -87,17 +88,17 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
             <div>
                 <h1 class="h3 fw-bold mb-1" style="color: var(--primary-color);">
-                    <i class="bi bi-boxes me-2"></i>Inventario & Registro de Costos
+                    <i class="bi bi-boxes me-2"></i>Inventario & Registro de Insumos
                 </h1>
                 <p class="text-muted mb-0">
-                    Administra el stock físico de cada molde, analiza márgenes unitarios y exporta tus datos a Excel.
+                    Administra el stock físico de velas, controla tus materias primas (ceras y botellas de fragancia) y exporta a Excel.
                 </p>
             </div>
             <div class="d-flex flex-wrap gap-2">
                 <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-2 fw-semibold" id="btn-zero-stock" title="Pone el stock de todos los moldes en 0 para iniciar conteo">
-                    <i class="bi bi-trash3 me-1"></i> Poner Stock en 0
+                    <i class="bi bi-trash3 me-1"></i> Poner Velas en 0
                 </button>
-                <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 py-2 fw-semibold" id="btn-exportar-excel">
+                <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 py-2 fw-semibold" id="btn-exportar-excel" title="Exporta Costeo Velas, Fragancias e Insumos">
                     <i class="bi bi-file-earmark-arrow-down-fill me-1"></i> Exportar a Excel (.xlsx)
                 </button>
                 <button type="button" class="btn btn-primary-custom btn-sm rounded-pill px-3 py-2 fw-semibold" data-bs-toggle="modal" data-bs-target="#modalNuevoProducto">
@@ -117,9 +118,9 @@
             </div>
             <div class="col-6 col-lg-3">
                 <div class="card card-custom p-3 h-100">
-                    <span class="text-muted text-uppercase" style="font-size: 0.72rem; font-weight: 600;">Unidades en Almacén</span>
+                    <span class="text-muted text-uppercase" style="font-size: 0.72rem; font-weight: 600;">Velas Listas en Almacén</span>
                     <h4 class="fw-bold my-1 text-primary" id="stat-total-stock">--</h4>
-                    <small class="text-muted">Stock físico disponible</small>
+                    <small class="text-muted">Stock terminado</small>
                 </div>
             </div>
             <div class="col-6 col-lg-3">
@@ -137,6 +138,106 @@
                 </div>
             </div>
         </div>
+
+        <!-- ========================================================================== -->
+        <!-- SECTION: INVENTARIO DE INSUMOS & MATERIAS PRIMAS (Raw Materials Register)   -->
+        <!-- ========================================================================== -->
+        <div class="card card-custom mb-4 border-primary-subtle shadow-sm">
+            <div class="card-header-custom" style="background: linear-gradient(135deg, #FAF6F0 0%, #FFFFFF 100%);">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-box2-fill text-primary fs-5"></i>
+                    <span class="fw-bold" style="color: var(--primary-color);">Inventario de Insumos & Materias Primas en Taller</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <span class="badge bg-light text-dark border">Pestaña "Insumos" en Excel</span>
+                </div>
+            </div>
+            <div class="card-body p-3 p-md-4">
+                <div class="row g-3">
+                    
+                    <!-- 1. Cera Malasia -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="p-3 bg-light rounded border h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem;">Cera Malasia (Moldes)</span>
+                                    <span class="badge bg-secondary">Moldes</span>
+                                </div>
+                                <h4 class="fw-bold text-dark my-1" id="insumo-cera-malasia-display">0.00 kg</h4>
+                                <small class="text-muted d-block" id="insumo-cera-malasia-sub">0 gramos disponibles</small>
+                            </div>
+                            <div class="d-flex gap-1 mt-3">
+                                <button type="button" class="btn btn-outline-secondary btn-sm flex-grow-1" onclick="modificarInsumoCera('malasia', 1000)" title="Agregar 1 kg de Cera Malasia">+1 kg</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm flex-grow-1" onclick="modificarInsumoCera('malasia', 5000)" title="Agregar 5 kg de Cera Malasia">+5 kg</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="modificarInsumoCera('malasia', -1000)" title="Restar 1 kg">-1 kg</button>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="abrirModalAjustarCera('malasia')" title="Ajustar cantidad exacta">✏️</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Cera de Soya -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="p-3 bg-light rounded border h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem;">Cera de Soya (Bouquets)</span>
+                                    <span class="badge bg-success">Bouquets</span>
+                                </div>
+                                <h4 class="fw-bold text-dark my-1" id="insumo-cera-soya-display">0.00 kg</h4>
+                                <small class="text-muted d-block" id="insumo-cera-soya-sub">0 gramos disponibles</small>
+                            </div>
+                            <div class="d-flex gap-1 mt-3">
+                                <button type="button" class="btn btn-outline-secondary btn-sm flex-grow-1" onclick="modificarInsumoCera('soya', 1000)" title="Agregar 1 kg de Cera Soya">+1 kg</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm flex-grow-1" onclick="modificarInsumoCera('soya', 5000)" title="Agregar 5 kg de Cera Soya">+5 kg</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="modificarInsumoCera('soya', -1000)" title="Restar 1 kg">-1 kg</button>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="abrirModalAjustarCera('soya')" title="Ajustar cantidad exacta">✏️</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Fragancias & Aromas -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="p-3 bg-light rounded border h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem;">Fragancias & Aromas</span>
+                                    <span class="badge bg-warning text-dark">Botellas</span>
+                                </div>
+                                <h4 class="fw-bold text-dark my-1" id="insumo-fragancias-total-display">0 botellas</h4>
+                                <small class="text-muted d-block" id="insumo-fragancias-total-sub">0 g totales en stock</small>
+                            </div>
+                            <button type="button" class="btn btn-outline-warning btn-sm w-100 mt-3 text-dark fw-semibold" data-bs-toggle="modal" data-bs-target="#modalDetalleFraganciasInsumo">
+                                <i class="bi bi-droplet-fill me-1 text-warning"></i> Gestionar Botellas (250ml/500ml/1L)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 4. Insumos Fijos Mensuales (Aditivos, Pabilos, Colorantes) -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="p-3 bg-light rounded border h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="text-muted text-uppercase fw-semibold" style="font-size: 0.72rem;">Insumos Menores</span>
+                                    <span class="badge bg-info-subtle text-info-emphasis border">Gasto Fijo</span>
+                                </div>
+                                <h6 class="fw-bold text-dark mb-1">Pabilos, Aditivo & Color</h6>
+                                <small class="text-muted d-block" style="font-size: 0.75rem;">
+                                    Considerado costo mensual operativo con restock continuo de taller.
+                                </small>
+                            </div>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle py-2 text-center mt-2">
+                                <i class="bi bi-arrow-repeat me-1"></i> Restock Continuo
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================================== -->
+        <!-- SECTION: TABLA INTERACTIVA DE VELAS & MOLDES                               -->
+        <!-- ========================================================================== -->
 
         <!-- Quick Filter Pills -->
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
@@ -170,19 +271,20 @@
                         <thead>
                             <tr>
                                 <th style="width: 5%;">#</th>
-                                <th style="width: 22%;">Molde / Vela</th>
-                                <th style="width: 10%;">Cera</th>
-                                <th style="width: 8%;">Gramaje</th>
-                                <th style="width: 10%;">Costo Insumos</th>
-                                <th style="width: 10%;">Precio Venta</th>
-                                <th style="width: 10%;">Ganancia</th>
+                                <th style="width: 18%;">Molde / Vela</th>
+                                <th style="width: 12%;">Categoría</th>
+                                <th style="width: 8%;">Cera</th>
+                                <th style="width: 7%;">Gramaje</th>
+                                <th style="width: 9%;">Costo Insumos</th>
+                                <th style="width: 9%;">Precio Venta</th>
+                                <th style="width: 9%;">Ganancia</th>
                                 <th style="width: 8%;">Margen</th>
-                                <th style="width: 12%;" class="text-center">Stock Actual</th>
+                                <th style="width: 10%;" class="text-center">Stock Actual</th>
                                 <th style="width: 5%;" class="text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Populated dynamically by DataTables / inventario.js -->
+                            <!-- Populated dynamically by DataTables & inventario.js -->
                         </tbody>
                     </table>
                 </div>
@@ -192,91 +294,188 @@
     </main>
 
     <!-- ========================================================================== -->
-    <!-- MODALS (Direct Stock Editor & Product Registration)                        -->
+    <!-- MODAL 1: AJUSTAR STOCK DE CERA EXACTO (Gramos o Kilogramos)               -->
     <!-- ========================================================================== -->
-
-    <!-- Modal 1: Quick Stock Adjustment -->
-    <div class="modal fade" id="modalAjusteStock" tabindex="-1" aria-labelledby="modalAjusteStockLabel" aria-hidden="true">
+    <div class="modal fade" id="modalAjustarCera" tabindex="-1" aria-labelledby="modalAjustarCeraLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow" style="border-radius: 14px;">
                 <div class="modal-header bg-light border-bottom">
-                    <h5 class="modal-title fw-bold" id="modalAjusteStockLabel" style="color: var(--primary-color);">
-                        <i class="bi bi-pencil-square me-2"></i>Ajustar Nivel de Stock
+                    <h5 class="modal-title fw-bold" id="modalAjustarCeraLabel" style="color: var(--primary-color);">
+                        <i class="bi bi-box-seam me-2"></i>Ajustar Stock de Cera
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
+                    <input type="hidden" id="ajuste-cera-tipo">
                     <div class="mb-3">
-                        <label class="form-label text-muted small text-uppercase fw-semibold">Molde / Producto:</label>
-                        <h5 class="fw-bold mb-0 text-dark" id="modal-stock-prod-nombre">--</h5>
-                        <small class="text-muted" id="modal-stock-prod-gramaje">-- g</small>
+                        <label class="form-label small fw-semibold" id="ajuste-cera-nombre-label">Tipo de Cera:</label>
+                        <div class="input-group">
+                            <input type="number" id="ajuste-cera-gramos-input" class="form-control" placeholder="Gramos totales" min="0" step="100">
+                            <span class="input-group-text">gramos (g)</span>
+                        </div>
+                        <small class="text-muted mt-1 d-block" id="ajuste-cera-kg-helper">Equivalente a: 0.00 kg</small>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label for="modal-stock-input-cantidad" class="form-label small fw-semibold">Nuevo Stock Físico (unidades):</label>
-                        <input type="number" id="modal-stock-input-cantidad" class="form-control form-control-lg text-center fw-bold" min="0" value="0">
-                    </div>
-
-                    <div class="p-3 bg-light rounded border small text-muted">
-                        <i class="bi bi-info-circle me-1"></i> Los cambios se guardan instantáneamente en la memoria local y actualizan las alertas globales del Dashboard.
-                    </div>
-                    <input type="hidden" id="modal-stock-prod-id">
                 </div>
                 <div class="modal-footer bg-light border-top">
                     <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary-custom rounded-pill px-4" id="btn-guardar-ajuste-stock">
-                        <i class="bi bi-check2 me-1"></i> Guardar Stock
+                    <button type="button" class="btn btn-primary-custom rounded-pill px-4" id="btn-guardar-ajuste-cera">
+                        <i class="bi bi-check2-circle me-1"></i> Guardar Stock
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal 2: Create New Product / Mold -->
+    <!-- ========================================================================== -->
+    <!-- MODAL 2: GESTIONAR BOTELLAS DE FRAGANCIAS (250ml, 500ml, 1L)              -->
+    <!-- ========================================================================== -->
+    <div class="modal fade" id="modalDetalleFraganciasInsumo" tabindex="-1" aria-labelledby="modalDetalleFraganciasInsumoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow" style="border-radius: 14px;">
+                <div class="modal-header bg-light border-bottom">
+                    <h5 class="modal-title fw-bold" id="modalDetalleFraganciasInsumoLabel" style="color: var(--primary-color);">
+                        <i class="bi bi-droplet-half me-2 text-warning"></i>Inventario de Fragancias en Taller
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body p-4">
+                    <p class="text-muted small mb-3">
+                        Registra las botellas en existencia de cada aroma según su presentación (<strong>250 ml</strong>, <strong>500 ml</strong>, <strong>1 Litro</strong>) o gramos sueltos. El total de gramos se calculará automáticamente y se sincronizará con la pestaña <code>Insumos</code> de Excel.
+                    </p>
+
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered align-middle mb-0">
+                            <thead class="table-light small text-muted text-uppercase text-center">
+                                <tr>
+                                    <th style="width: 30%;" class="text-start">Aroma / Fragancia</th>
+                                    <th style="width: 20%;">Botellas 250ml</th>
+                                    <th style="width: 20%;">Botellas 500ml</th>
+                                    <th style="width: 20%;">Botellas 1L (1000ml)</th>
+                                    <th style="width: 10%;" class="text-end">Total (g)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fragancias-insumo-tbody">
+                                <!-- Populated dynamically by inventario.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light border-top">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary-custom rounded-pill px-4" id="btn-guardar-fragancias-insumo">
+                        <i class="bi bi-check2-circle me-1"></i> Guardar Inventario de Fragancias
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================== -->
+    <!-- MODAL 3: AJUSTAR STOCK RÁPIDO DE VELA                                      -->
+    <!-- ========================================================================== -->
+    <div class="modal fade" id="modalAjustarStock" tabindex="-1" aria-labelledby="modalAjustarStockLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow" style="border-radius: 14px;">
+                <div class="modal-header bg-light border-bottom">
+                    <h5 class="modal-title fw-bold" id="modalAjustarStockLabel" style="color: var(--primary-color);">
+                        <i class="bi bi-pencil-square me-2"></i>Ajustar Stock Físico
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" id="ajuste-prod-id">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold" id="ajuste-prod-nombre">Molde:</label>
+                        <select id="ajuste-prod-color" class="form-select form-select-sm mb-2">
+                            <option value="base" selected>Base / Sin color</option>
+                            <option value="negro">Negro</option>
+                            <option value="naranja">Naranja</option>
+                            <option value="rosa">Rosa</option>
+                            <option value="azul">Azul</option>
+                            <option value="amarillo">Amarillo</option>
+                            <option value="cafe">Café</option>
+                            <option value="rojo">Rojo</option>
+                            <option value="blanco">Blanco</option>
+                            <option value="verde">Verde</option>
+                            <option value="morado">Morado</option>
+                        </select>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-box-seam"></i></span>
+                            <input type="number" id="ajuste-prod-stock-input" class="form-control form-control-lg text-center fw-bold" min="0" step="1">
+                            <span class="input-group-text">unidades</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-top">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary-custom rounded-pill px-4" id="btn-guardar-ajuste-stock">
+                        <i class="bi bi-check2-circle me-1"></i> Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================== -->
+    <!-- MODAL 4: REGISTRAR NUEVO PRODUCTO / MOLDE                                  -->
+    <!-- ========================================================================== -->
     <div class="modal fade" id="modalNuevoProducto" tabindex="-1" aria-labelledby="modalNuevoProductoLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow" style="border-radius: 14px;">
                 <div class="modal-header bg-light border-bottom">
                     <h5 class="modal-title fw-bold" id="modalNuevoProductoLabel" style="color: var(--primary-color);">
-                        <i class="bi bi-plus-circle-fill me-2"></i>Registrar Nuevo Molde / Vela
+                        <i class="bi bi-plus-circle-fill me-2"></i>Registrar Nuevo Molde de Vela
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <form id="form-nuevo-producto" onsubmit="return false;">
+                    <form id="form-nuevo-producto">
                         <div class="mb-3">
                             <label for="nuevo-prod-nombre" class="form-label small fw-semibold">Nombre del Molde / Vela:</label>
-                            <input type="text" id="nuevo-prod-nombre" class="form-control" placeholder="Ej. Rosa Gigante, Tulipán Bouquet" required>
+                            <input type="text" id="nuevo-prod-nombre" class="form-control form-control-sm" placeholder="Ej. Rosa Mediana" required>
                         </div>
-                        <div class="row g-3 mb-3">
-                            <div class="col-6">
-                                <label for="nuevo-prod-gramaje" class="form-label small fw-semibold">Gramaje Total (g):</label>
-                                <input type="number" id="nuevo-prod-gramaje" class="form-control" placeholder="Ej. 45" min="1" step="0.5" required>
-                            </div>
-                            <div class="col-6">
+                        <div class="mb-3">
+                            <label for="nuevo-prod-categoria" class="form-label small fw-semibold">Categoría:</label>
+                            <select id="nuevo-prod-categoria" class="form-select form-select-sm">
+                                <option value="The Botanical Collection">The Botanical Collection</option>
+                                <option value="Pop & Cool Objects">Pop & Cool Objects</option>
+                                <option value="Heritage / Sacred Icons">Heritage / Sacred Icons</option>
+                                <option value="Autumn & Spooky Season">Autumn & Spooky Season</option>
+                                <option value="The Holiday Magic">The Holiday Magic</option>
+                                <option value="Sin Categoría / Complementaria" selected>Sin Categoría / Complementaria</option>
+                            </select>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-sm-6">
                                 <label for="nuevo-prod-cera" class="form-label small fw-semibold">Tipo de Cera:</label>
-                                <select id="nuevo-prod-cera" class="form-select">
+                                <select id="nuevo-prod-cera" class="form-select form-select-sm">
                                     <option value="malasia" selected>Cera Malasia ($0.11/g)</option>
                                     <option value="soya">Cera de Soya ($0.14/g)</option>
                                 </select>
                             </div>
-                        </div>
-                        <div class="row g-3 mb-3">
-                            <div class="col-6">
-                                <label for="nuevo-prod-precio" class="form-label small fw-semibold">Precio de Venta ($):</label>
-                                <input type="number" id="nuevo-prod-precio" class="form-control" placeholder="Ej. 65" min="0" step="1" required>
+                            <div class="col-sm-6">
+                                <label for="nuevo-prod-gramaje" class="form-label small fw-semibold">Gramaje Total (g):</label>
+                                <input type="number" id="nuevo-prod-gramaje" class="form-control form-control-sm" placeholder="Ej. 45" min="1" step="1" required>
                             </div>
-                            <div class="col-6">
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-sm-6">
+                                <label for="nuevo-prod-precio" class="form-label small fw-semibold">Precio de Venta ($):</label>
+                                <input type="number" id="nuevo-prod-precio" class="form-control form-control-sm" placeholder="Ej. 65" min="0" step="1" required>
+                            </div>
+                            <div class="col-sm-6">
                                 <label for="nuevo-prod-stock" class="form-label small fw-semibold">Stock Inicial (uds):</label>
-                                <input type="number" id="nuevo-prod-stock" class="form-control" value="0" min="0" required>
+                                <input type="number" id="nuevo-prod-stock" class="form-control form-control-sm" value="0" min="0" step="1">
                             </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer bg-light border-top">
                     <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary-custom rounded-pill px-4" id="btn-crear-producto">
-                        <i class="bi bi-save2 me-1"></i> Crear Producto
+                    <button type="button" class="btn btn-primary-custom rounded-pill px-4" id="btn-guardar-nuevo-producto">
+                        <i class="bi bi-save me-1"></i> Agregar al Catálogo
                     </button>
                 </div>
             </div>
@@ -296,22 +495,18 @@
     <!-- ========================================== -->
     <!-- JS LIBRARIES & APPLICATION DRIVERS         -->
     <!-- ========================================== -->
-    <!-- 1. jQuery (Required for DataTables.net v1) -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-    <!-- 2. Bootstrap 5 Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- 3. DataTables.net JS & Bootstrap Integration -->
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
-
-    <!-- 4. SheetJS (Excel Export Engine) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-    <!-- 5. Core Engine & Inventory Controller -->
+    <!-- Firebase SDKs (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="js/firebase-sync.js"></script>
+    
     <script src="js/app.js"></script>
     <script src="js/inventario.js"></script>
 

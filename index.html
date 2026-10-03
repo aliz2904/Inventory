@@ -3,12 +3,12 @@
 <head>
     <!-- 
         VELISIMA - Candle Inventory & Cost Control
-        Phase 1: Base Shell, Shared Layout & State Manager (The System Bus)
-        + Quote System Integration (Cotizaciones)
+        Phase 1: Base Shell, Shared Layout & State Manager
+        Phase 4: Profit & Material Dashboard (The Analytics Console & Business Intelligence)
     -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Velisima | Control de Costos e Inventario</title>
+    <title>Velisima | Panel de Control, Costos & Analítica</title>
 
     <!-- 1. Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -21,8 +21,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- 4. Custom Styling -->
+    <!-- 4. Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
+    <!-- 5. Custom Styling -->
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
@@ -48,7 +53,7 @@
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="index.html">
-                            <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                            <i class="bi bi-speedometer2 me-1"></i> Dashboard & Analítica
                         </a>
                     </li>
                     <li class="nav-item">
@@ -86,10 +91,10 @@
         <div class="row align-items-center mb-4 g-3">
             <div class="col-md-8">
                 <h1 class="h3 fw-bold mb-1" style="color: var(--primary-color);">
-                    Panel de Control & Gestión de Costos
+                    <i class="bi bi-graph-up me-2"></i>Consola de Analítica & Control de Costos
                 </h1>
                 <p class="text-muted mb-0">
-                    Sistema local autónomo de costeo, inventario y materiales para velas artesanales.
+                    Business intelligence en tiempo real, márgenes por producto, previsión de insumos y planificador de lotes.
                 </p>
             </div>
             <div class="col-md-4 text-md-end">
@@ -107,11 +112,11 @@
                 <div class="card card-custom h-100 p-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <span class="text-muted text-uppercase" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">Catálogo Activo</span>
+                            <span class="text-muted text-uppercase" style="font-size: 0.72rem; font-weight: 600; letter-spacing: 0.5px;">Catálogo Activo</span>
                             <h3 class="fw-bold my-1" id="kpi-cant-productos">--</h3>
                             <small class="text-muted">Moldes registrados</small>
                         </div>
-                        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: #F8EFEA; color: var(--primary-color); width: 50px; height: 50px;">
+                        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: #F8EFEA; color: var(--primary-color); width: 48px; height: 48px;">
                             <i class="bi bi-grid-3x3-gap-fill fs-5"></i>
                         </div>
                     </div>
@@ -122,11 +127,11 @@
                 <div class="card card-custom h-100 p-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <span class="text-muted text-uppercase" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">Margen Promedio</span>
+                            <span class="text-muted text-uppercase" style="font-size: 0.72rem; font-weight: 600; letter-spacing: 0.5px;">Margen Promedio</span>
                             <h3 class="fw-bold my-1 text-success" id="kpi-margen-promedio">--%</h3>
                             <small class="text-muted">Rendimiento por vela</small>
                         </div>
-                        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: #EAF6EC; color: var(--success-color); width: 50px; height: 50px;">
+                        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: #EAF6EC; color: var(--success-color); width: 48px; height: 48px;">
                             <i class="bi bi-graph-up-arrow fs-5"></i>
                         </div>
                     </div>
@@ -137,11 +142,11 @@
                 <div class="card card-custom h-100 p-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <span class="text-muted text-uppercase" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">Stock Total</span>
+                            <span class="text-muted text-uppercase" style="font-size: 0.72rem; font-weight: 600; letter-spacing: 0.5px;">Stock Total</span>
                             <h3 class="fw-bold my-1 text-primary" id="kpi-total-inventario">--</h3>
                             <small class="text-muted">Unidades listas</small>
                         </div>
-                        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: #EBF3FA; color: #2B78E4; width: 50px; height: 50px;">
+                        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: #EBF3FA; color: #2B78E4; width: 48px; height: 48px;">
                             <i class="bi bi-boxes fs-5"></i>
                         </div>
                     </div>
@@ -152,11 +157,11 @@
                 <div class="card card-custom h-100 p-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <span class="text-muted text-uppercase" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">Valor Inventario</span>
+                            <span class="text-muted text-uppercase" style="font-size: 0.72rem; font-weight: 600; letter-spacing: 0.5px;">Valor Inventario</span>
                             <h3 class="fw-bold my-1" style="color: var(--primary-color);" id="kpi-valor-inventario">$--</h3>
                             <small class="text-muted">A precio de venta</small>
                         </div>
-                        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: #FAF4E8; color: var(--secondary-color); width: 50px; height: 50px;">
+                        <div class="rounded-circle p-3 d-flex align-items-center justify-content-center" style="background-color: #FAF4E8; color: var(--secondary-color); width: 48px; height: 48px;">
                             <i class="bi bi-cash-stack fs-5"></i>
                         </div>
                     </div>
@@ -164,90 +169,126 @@
             </div>
         </div>
 
-        <!-- ========================================== -->
-        <!-- ROW: EXCEL LOADER & CONFIGURATION (Phase 1)-->
-        <!-- ========================================== -->
+        <!-- ========================================================================== -->
+        <!-- PHASE 4: PROFIT & MATERIAL DASHBOARD (Chart.js Business Intelligence)      -->
+        <!-- ========================================================================== -->
         <div class="row g-4 mb-4">
-            <div class="col-lg-7">
+            
+            <!-- Chart 1: Profitability Ranking by Product (Horizontal Bar Chart) -->
+            <div class="col-lg-8">
                 <div class="card card-custom h-100">
-                    <div class="card-header-custom">
+                    <div class="chart-card-header">
                         <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-file-earmark-spreadsheet-fill text-success fs-5"></i>
-                            <span>Importador de Archivo Excel (SheetJS Bus)</span>
+                            <i class="bi bi-bar-chart-fill text-primary fs-5"></i>
+                            <span class="fw-bold" style="color: var(--primary-color);">Rentabilidad & Margen por Vela ($ y %)</span>
                         </div>
-                        <span class="badge bg-secondary">Entrada I/O</span>
+                        <div class="d-flex gap-2">
+                            <select id="filtro-grafico-cera" class="form-select form-select-sm py-0 px-2" style="font-size: 0.8rem; width: auto;">
+                                <option value="all" selected>Todas las ceras</option>
+                                <option value="malasia">Cera Malasia</option>
+                                <option value="soya">Cera Soya</option>
+                            </select>
+                            <select id="orden-grafico-rentabilidad" class="form-select form-select-sm py-0 px-2" style="font-size: 0.8rem; width: auto;">
+                                <option value="margen_desc" selected>Mayor Margen %</option>
+                                <option value="ganancia_desc">Mayor Ganancia $</option>
+                                <option value="precio_desc">Mayor Precio Venta</option>
+                                <option value="id_asc">Por ID (#1 a #28)</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="card-body p-4 d-flex flex-column justify-content-between">
-                        <p class="text-muted small mb-3">
-                            Carga tu archivo <code>Costeo_Velas.xlsx</code> para actualizar automáticamente los costos de insumos, fórmulas, moldes y la lista de fragancias en la memoria del navegador.
-                        </p>
-
-                        <div id="excel-upload-zone" class="dropzone-container my-auto">
-                            <i class="bi bi-cloud-arrow-up-fill dropzone-icon d-block"></i>
-                            <h5 class="fw-semibold mb-1">Arrastra tu archivo Excel aquí</h5>
-                            <p class="text-muted small mb-3">o haz clic para seleccionar desde tu computadora (<code>.xlsx</code> o <code>.xls</code>)</p>
-                            <button type="button" class="btn btn-sm btn-primary-custom px-4 py-2 rounded-pill">
-                                <i class="bi bi-folder2-open me-1"></i> Explorar Archivos
-                            </button>
-                            <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="display: none;">
+                    <div class="card-body p-3 p-md-4">
+                        <div class="chart-container-wrapper" style="height: 340px;">
+                            <canvas id="chart-rentabilidad-productos"></canvas>
                         </div>
-
-                        <div class="mt-3 p-2 rounded bg-light border d-flex align-items-center gap-2 small text-muted">
-                            <i class="bi bi-info-circle-fill text-primary"></i>
-                            <span>Detecta automáticamente las hojas <strong>"Costeo Velas"</strong> (moldes y parámetros) y <strong>"Fragancias"</strong> (costos por 250ml).</span>
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top small text-muted">
+                            <div><i class="bi bi-info-circle me-1"></i>Comparativa entre <strong>Precio de Venta</strong>, <strong>Costo de Insumos</strong> y <strong>Margen Neto</strong>.</div>
+                            <span class="badge bg-light text-dark border">Chart.js Engine</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-5">
+            <!-- Leaderboard: Top 5 Highest Margin Candles -->
+            <div class="col-lg-4">
                 <div class="card card-custom h-100">
-                    <div class="card-header-custom">
+                    <div class="chart-card-header">
                         <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-sliders text-primary fs-5"></i>
-                            <span>Parámetros de Costeo Global</span>
+                            <i class="bi bi-trophy-fill text-warning fs-5"></i>
+                            <span class="fw-bold" style="color: var(--primary-color);">Top 5 Velas Más Rentables</span>
                         </div>
-                        <span class="badge bg-light text-dark border">Coeficientes</span>
+                        <span class="badge bg-warning text-dark">Líderes</span>
                     </div>
-                    <div class="card-body p-4">
-                        <p class="text-muted small mb-3">
-                            Valores unitarios y porcentajes aplicados a las fórmulas de cálculo de cada vela:
-                        </p>
+                    <div class="card-body p-3 d-flex flex-column justify-content-between" id="ranking-rentabilidad-container">
+                        <!-- Populated dynamically by JS -->
+                        <div class="text-center text-muted py-4 small">Calculando ranking de márgenes...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                        <ul class="list-group list-group-flush small mb-3">
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
-                                <span><i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: var(--primary-color);"></i> Cera Malasia (Moldes):</span>
-                                <strong class="badge bg-light text-dark border fs-6" id="param-costo-cera-malasia">$0.11 / g</strong>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
-                                <span><i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: var(--success-color);"></i> Cera de Soya (Bouquets):</span>
-                                <strong class="badge bg-light text-dark border fs-6" id="param-costo-cera-soya">$0.14 / g</strong>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
-                                <span><i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: #D4A373;"></i> Catálogo de Fragancias:</span>
-                                <strong class="badge bg-light text-dark border fs-6" id="param-cant-fragancias">8 aromas</strong>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
-                                <span><i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: var(--secondary-color);"></i> % Fragancia Estándar:</span>
-                                <strong class="badge bg-light text-dark border fs-6" id="param-pct-frag">8% (rango 6%-10%)</strong>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
-                                <span><i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: var(--secondary-color);"></i> % Aditivo Estándar:</span>
-                                <strong class="badge bg-light text-dark border fs-6" id="param-pct-adit">2%</strong>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
-                                <span><i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: var(--secondary-color);"></i> Costo Pabilo (Wick):</span>
-                                <strong class="badge bg-light text-dark border fs-6" id="param-costo-pab">$0.50 / ud</strong>
-                            </li>
-                        </ul>
-
-                        <div class="alert alert-info py-2 px-3 small mb-0 d-flex align-items-center">
-                            <i class="bi bi-check2-circle fs-5 me-2"></i>
-                            <div>Cera calculada por residuo: <code>100% - % Fragancia - 2% Aditivo</code></div>
+        <!-- ========================================================================== -->
+        <!-- PHASE 4: MATERIAL CONSUMPTION BREAKDOWN & RESTOCK PREDICTOR                -->
+        <!-- ========================================================================== -->
+        <div class="row g-4 mb-4">
+            
+            <!-- Chart 2: Cost Structure Breakdown (Doughnut Chart) -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card card-custom h-100">
+                    <div class="chart-card-header">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-pie-chart-fill text-success fs-5"></i>
+                            <span class="fw-bold" style="color: var(--primary-color);">Estructura de Insumos</span>
+                        </div>
+                        <span class="badge bg-light text-dark border">Costos</span>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="chart-container-wrapper" style="height: 220px;">
+                            <canvas id="chart-composicion-insumos"></canvas>
+                        </div>
+                        <div class="mt-3 text-center small text-muted">
+                            Distribución porcentual promedio del costo de materia prima por vela.
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Chart 3: Capital Distribution in Stock (Bar Chart) -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card card-custom h-100">
+                    <div class="chart-card-header">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-cash-coin text-warning fs-5"></i>
+                            <span class="fw-bold" style="color: var(--primary-color);">Capital en Inventario</span>
+                        </div>
+                        <span class="badge bg-light text-dark border">Activos</span>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="chart-container-wrapper" style="height: 220px;">
+                            <canvas id="chart-capital-inventario"></canvas>
+                        </div>
+                        <div class="mt-3 text-center small text-muted">
+                            Moldes con mayor valor monetario almacenado en taller.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restock & Raw Material Predictor for Pending Orders -->
+            <div class="col-lg-4">
+                <div class="card card-custom h-100">
+                    <div class="chart-card-header">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-clipboard2-pulse-fill text-danger fs-5"></i>
+                            <span class="fw-bold" style="color: var(--primary-color);">Insumos para Pedidos</span>
+                        </div>
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle" id="badge-pedidos-pendientes-count">0 Pendientes</span>
+                    </div>
+                    <div class="card-body p-3 d-flex flex-column justify-content-between" id="prevision-insumos-body">
+                        <!-- Populated dynamically: calculates raw materials needed for all pending orders -->
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <!-- ========================================== -->
@@ -367,7 +408,7 @@
                                     </div>
                                 </div>
 
-                                <!-- QUOTE SYSTEM BUTTON: Placed directly below the cost calculator -->
+                                <!-- Quote Button directly below calculator -->
                                 <div class="mt-4 pt-3 border-top d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
                                     <div class="small text-muted">
                                         <i class="bi bi-file-earmark-person me-1"></i> ¿Deseas enviar este presupuesto a un cliente?
@@ -384,10 +425,96 @@
             </div>
         </div>
 
+        <!-- ========================================== -->
+        <!-- ROW: EXCEL LOADER & CONFIGURATION          -->
+        <!-- ========================================== -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-7">
+                <div class="card card-custom h-100">
+                    <div class="card-header-custom">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-file-earmark-spreadsheet-fill text-success fs-5"></i>
+                            <span>Importador de Archivo Excel (SheetJS Bus)</span>
+                        </div>
+                        <span class="badge bg-secondary">Entrada I/O</span>
+                    </div>
+                    <div class="card-body p-4 d-flex flex-column justify-content-between">
+                        <p class="text-muted small mb-3">
+                            Carga tu archivo <code>Costeo_Velas.xlsx</code> para actualizar automáticamente los costos de insumos, fórmulas, moldes y la lista de fragancias en la memoria del navegador.
+                        </p>
+
+                        <div id="excel-upload-zone" class="dropzone-container my-auto">
+                            <i class="bi bi-cloud-arrow-up-fill dropzone-icon d-block"></i>
+                            <h5 class="fw-semibold mb-1">Arrastra tu archivo Excel aquí</h5>
+                            <p class="text-muted small mb-3">o haz clic para seleccionar desde tu computadora (<code>.xlsx</code> o <code>.xls</code>)</p>
+                            <button type="button" class="btn btn-sm btn-primary-custom px-4 py-2 rounded-pill">
+                                <i class="bi bi-folder2-open me-1"></i> Explorar Archivos
+                            </button>
+                            <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="display: none;">
+                        </div>
+
+                        <div class="mt-3 p-2 rounded bg-light border d-flex align-items-center gap-2 small text-muted">
+                            <i class="bi bi-info-circle-fill text-primary"></i>
+                            <span>Detecta automáticamente las hojas <strong>"Costeo Velas"</strong> (moldes y parámetros) y <strong>"Fragancias"</strong> (costos por 250ml).</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card card-custom h-100">
+                    <div class="card-header-custom">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-sliders text-primary fs-5"></i>
+                            <span>Parámetros de Costeo Global</span>
+                        </div>
+                        <span class="badge bg-light text-dark border">Coeficientes</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="text-muted small mb-3">
+                            Valores unitarios y porcentajes aplicados a las fórmulas de cálculo de cada vela:
+                        </p>
+
+                        <ul class="list-group list-group-flush small mb-3">
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                <span><i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: var(--primary-color);"></i> Cera Malasia (Moldes):</span>
+                                <strong class="badge bg-light text-dark border fs-6" id="param-costo-cera-malasia">$0.11 / g</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                <span><i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: var(--success-color);"></i> Cera de Soya (Bouquets):</span>
+                                <strong class="badge bg-light text-dark border fs-6" id="param-costo-cera-soya">$0.14 / g</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                <span><i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: #D4A373;"></i> Catálogo de Fragancias:</span>
+                                <strong class="badge bg-light text-dark border fs-6" id="param-cant-fragancias">8 aromas</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                <span><i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: var(--secondary-color);"></i> % Fragancia Estándar:</span>
+                                <strong class="badge bg-light text-dark border fs-6" id="param-pct-frag">8% (rango 6%-10%)</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                <span><i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: var(--secondary-color);"></i> % Aditivo Estándar:</span>
+                                <strong class="badge bg-light text-dark border fs-6" id="param-pct-adit">2%</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                <span><i class="bi bi-circle-fill me-2" style="font-size: 0.5rem; color: var(--secondary-color);"></i> Costo Pabilo (Wick):</span>
+                                <strong class="badge bg-light text-dark border fs-6" id="param-costo-pab">$0.50 / ud</strong>
+                            </li>
+                        </ul>
+
+                        <div class="alert alert-info py-2 px-3 small mb-0 d-flex align-items-center">
+                            <i class="bi bi-check2-circle fs-5 me-2"></i>
+                            <div>Cera calculada por residuo: <code>100% - % Fragancia - 2% Aditivo</code></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- ========================================================================== -->
-    <!-- MODAL 1: CREAR COTIZACIÓN (Captura de Cliente desde la Calculadora)        -->
+    <!-- MODAL 1: CREAR COTIZACIÓN                                                 -->
     <!-- ========================================================================== -->
     <div class="modal fade" id="modalCrearCotizacion" tabindex="-1" aria-labelledby="modalCrearCotizacionLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -493,10 +620,18 @@
     </footer>
 
     <!-- ========================================== -->
-    <!-- JS LIBRARIES                               -->
+    <!-- JS LIBRARIES & APPLICATION DRIVERS         -->
     <!-- ========================================== -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- Firebase SDKs (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="js/firebase-sync.js"></script>
+    
     <script src="js/app.js"></script>
 
 </body>
